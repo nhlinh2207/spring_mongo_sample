@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+spring:
+  data:
+    mongodb:
+      authentication-database: admin
+      host: 192.168.25.139
+      port: 27017
+      username: linh
+      password: linh
+      database: springDemo
