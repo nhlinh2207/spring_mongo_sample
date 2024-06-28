@@ -5,7 +5,7 @@ spring:
   data:
     mongodb:
       authentication-database: admin
-      host: 192.168.25.139
+      host: 192.168.25.140
       port: 27017
       username: linh
       password: linh

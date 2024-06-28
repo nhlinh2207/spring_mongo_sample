@@ -32,7 +32,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
     private final SimpleDateFormat smf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     @Autowired
-    private MongoTemplate mongoTemplate;
+    protected MongoTemplate mongoTemplate;
 
     @Override
     public void createAll(List<T> ts) {
