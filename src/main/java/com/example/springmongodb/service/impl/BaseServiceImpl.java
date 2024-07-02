@@ -84,13 +84,13 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
             Object parseValue = ConvertTypeUtil.convert(value);
             switch (delimiter){
                 case "==" : {
-                    if (value.startsWith("*") && value.endsWith("*")){
-                        String subValue = value.substring(1, value.length() - 1);
+                    String stringParseValue = parseValue.toString();
+                    if (stringParseValue.startsWith("*") && stringParseValue.endsWith("*")){
+                        String subValue = stringParseValue.substring(1, stringParseValue.length() - 1);
                         singleCriteria = Criteria.where(key).regex(".*"+ URLDecoder.decode(subValue, "UTF-8")+".*", "i");
                     }
-                    else{
+                    else
                         singleCriteria = Criteria.where(key).is(parseValue);
-                    }
                     break;
                 }
                 case "<":{
