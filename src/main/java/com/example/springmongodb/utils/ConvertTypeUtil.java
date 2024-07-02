@@ -8,6 +8,9 @@ import java.text.SimpleDateFormat;
 public class ConvertTypeUtil {
 
     public static Object convert(String value) throws UnsupportedEncodingException {
+        if (value.startsWith("\"") && value.endsWith("\""))
+            value = value.substring(1, value.length() - 1);
+
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
