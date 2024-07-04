@@ -83,7 +83,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
             String value = keyValue[1];
             Object parseValue = ConvertTypeUtil.convert(value);
             switch (delimiter){
-                case "==" : {
+                case "==": {
                     String stringParseValue = parseValue.toString();
                     if (stringParseValue.startsWith("*") && stringParseValue.endsWith("*")){
                         String subValue = stringParseValue.substring(1, stringParseValue.length() - 1);
@@ -93,19 +93,19 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
                         singleCriteria = Criteria.where(key).is(parseValue);
                     break;
                 }
-                case "<":{
+                case "<": {
                     singleCriteria = Criteria.where(key).lt(parseValue);
                     break;
                 }
-                case  ">" :{
+                case  ">": {
                     singleCriteria = Criteria.where(key).gt(parseValue);
                     break;
                 }
-                case "<=":{
+                case "<=": {
                     singleCriteria = Criteria.where(key).lte(parseValue);
                     break;
                 }
-                case  ">=" :{
+                case  ">=" : {
                     singleCriteria = Criteria.where(key).gte(parseValue);
                     break;
                 }
