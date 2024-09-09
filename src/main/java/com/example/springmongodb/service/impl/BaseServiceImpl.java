@@ -4,6 +4,7 @@ import com.example.springmongodb.utils.ConvertTypeUtil;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import com.example.springmongodb.exception.UnSuccessException;
@@ -28,6 +29,8 @@ import java.util.stream.StreamSupport;
 public abstract class BaseServiceImpl<T> implements BaseService<T> {
 
     protected abstract BaseRepo<T> getBaseRepo();
+
+    protected abstract Class<T> getEntityClass();
 
     private final SimpleDateFormat smf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
@@ -67,13 +70,38 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
     }
 
     @Override
-    public Page<T> search(Class<T> clazz, SearchRequest req) throws UnsupportedEncodingException {
+    public Page<T> search(SearchRequest req) throws UnsupportedEncodingException {
         Query query = new Query();
+        List<Criteria> andCriteriaList = new ArrayList<>();
+        List<Criteria> orCriteriaList = new ArrayList<>();
+        Pattern pattern = Pattern.compile("(==|!=|<=|>=|<|>)");
+        String filters = req.getFilter();
+        // if contain OR operator then create orCriteriaList
+        if (filters.contains(";(") && filters.contains(")")){
+            orCriteriaList = createCriteriaList(filters.substring(filters.indexOf(";(") + 2, filters.indexOf(")")).split(","), pattern);
+            andCriteriaList = createCriteriaList(filters.replaceAll(";\\(.*?\\)", "").split(";"), pattern);
+            query.addCriteria(
+                    new Criteria().andOperator(
+                            new Criteria().andOperator(andCriteriaList.toArray(new Criteria[0])),
+                            new Criteria().orOperator(orCriteriaList.toArray(new Criteria[0]))
+                    )
+            );
+        }else{
+            andCriteriaList = createCriteriaList(filters.split(";"), pattern);
+            query.addCriteria(new Criteria().andOperator(andCriteriaList.toArray(new Criteria[0])));
+        }
+        String[] sortParams = req.getSort().split(",");
+        Sort.Direction direction = sortParams[1].equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), Sort.by(direction, sortParams[0]));
+        long count = mongoTemplate.count(query, getEntityClass(), getEntityCollectionName());
+        query.with(pageable);
+        List<T> list = mongoTemplate.find(query, getEntityClass(), getEntityCollectionName());
+        return new org.springframework.data.domain.PageImpl<T>(list, pageable, count);
+    }
+
+    private List<Criteria> createCriteriaList(String[] filters, Pattern pattern) throws UnsupportedEncodingException {
         List<Criteria> criteriaList = new ArrayList<>();
-        String regex = "(==|<=|>=|<|>)";
-        Pattern pattern = Pattern.compile(regex);
-        String[] filters = req.getFilter().split(";");
-        for (String filter : filters){
+        for (String filter : filters) {
             Criteria singleCriteria = new Criteria();
             Matcher matcher = pattern.matcher(filter);
             matcher.find();
@@ -82,22 +110,29 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
             String key = keyValue[0];
             String value = keyValue[1];
             Object parseValue = ConvertTypeUtil.convert(value);
-            switch (delimiter){
+            switch (delimiter) {
                 case "==": {
                     String stringParseValue = parseValue.toString();
-                    if (stringParseValue.startsWith("*") && stringParseValue.endsWith("*")){
+                    if (stringParseValue.startsWith("*") && stringParseValue.endsWith("*")) {
                         String subValue = stringParseValue.substring(1, stringParseValue.length() - 1);
-                        singleCriteria = Criteria.where(key).regex(".*"+ URLDecoder.decode(subValue, "UTF-8")+".*", "i");
-                    }
-                    else
+                        singleCriteria = Criteria.where(key).regex(".*" + URLDecoder.decode(subValue, "UTF-8") + ".*", "i");
+                    } else if (stringParseValue.equals("-99999") || stringParseValue.equals("#NULL#")){
+                        singleCriteria = Criteria.where(key).is(null);
+                    } else if (stringParseValue.equals("#NOTNULL#")){
+                        singleCriteria = Criteria.where(key).ne(null);
+                    } else
                         singleCriteria = Criteria.where(key).is(parseValue);
+                    break;
+                }
+                case "!=": {
+                    singleCriteria = Criteria.where(key).ne(parseValue);
                     break;
                 }
                 case "<": {
                     singleCriteria = Criteria.where(key).lt(parseValue);
                     break;
                 }
-                case  ">": {
+                case ">": {
                     singleCriteria = Criteria.where(key).gt(parseValue);
                     break;
                 }
@@ -105,21 +140,14 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
                     singleCriteria = Criteria.where(key).lte(parseValue);
                     break;
                 }
-                case  ">=" : {
+                case ">=": {
                     singleCriteria = Criteria.where(key).gte(parseValue);
                     break;
                 }
             }
             criteriaList.add(singleCriteria);
         }
-        query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
-        String[] sortParams = req.getSort().split(",");
-        Sort.Direction direction = sortParams[1].equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), Sort.by(direction, sortParams[0]));
-        long count = mongoTemplate.count(query, clazz);
-        query.with(pageable);
-        List<T> list = mongoTemplate.find(query, clazz);
-        return new org.springframework.data.domain.PageImpl<T>(list, pageable, count);
+        return criteriaList;
     }
 
     @Override
@@ -128,12 +156,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
                 .collect(Collectors.toList());
     }
 
-    private boolean checkDate(String pattern){
-        try{
-            smf.parse(pattern);
-            return true;
-        }catch (Exception e){
-            return false;
-        }
+    public String getEntityCollectionName() {
+        return getEntityClass().getAnnotation(Document.class).collection();
     }
 }

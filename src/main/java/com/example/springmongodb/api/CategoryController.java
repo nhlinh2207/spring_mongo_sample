@@ -24,11 +24,6 @@ public class CategoryController extends BaseController<CategoryEntity>{
         return categoryService;
     }
 
-    @Override
-    protected Class<CategoryEntity> getEntityClass() {
-        return CategoryEntity.class;
-    }
-
     @PostMapping(path = "/createWithoutEntity")
     public ResponseEntity<?> create(@RequestBody JSONObject request){
         ResponseObject<Object> response = new ResponseObject<>(true, ResponseStatus.DO_SERVICE_SUCCESSFUL);

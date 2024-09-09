@@ -13,8 +13,6 @@ public abstract class BaseController<T>{
 
     protected abstract BaseService<T> getBaseService();
 
-    protected abstract Class<T> getEntityClass();
-
     @PostMapping(path = "/create")
     public ResponseEntity<?> create(@RequestBody T request){
         ResponseObject<T> response = new ResponseObject<>(true, ResponseStatus.DO_SERVICE_SUCCESSFUL);
@@ -46,7 +44,7 @@ public abstract class BaseController<T>{
     @GetMapping(path = "/search")
     public ResponseEntity<?> search(SearchRequest request) throws UnsupportedEncodingException {
         ResponseObject<Object> response = new ResponseObject<>(true, ResponseStatus.DO_SERVICE_SUCCESSFUL);
-        response.setData(getBaseService().search(getEntityClass(), request));
+        response.setData(getBaseService().search(request));
         return ResponseEntity.ok(response);
     }
 }

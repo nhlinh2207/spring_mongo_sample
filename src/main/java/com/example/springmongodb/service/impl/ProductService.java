@@ -18,7 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 @Service
 @Slf4j
@@ -34,9 +34,14 @@ public class ProductService extends BaseServiceImpl<ProductEntity> implements IP
     }
 
     @Override
+    protected Class<ProductEntity> getEntityClass() {
+        return ProductEntity.class;
+    }
+
+    @Override
     public ProductEntity create(ProductEntity productEntity) {
-        productEntity.setCreateTime(new Date());
-        productEntity.setUpdateTime(new Date());
+        productEntity.setCreateTime(ZonedDateTime.now());
+        productEntity.setUpdateTime(ZonedDateTime.now());
         productEntity.setCategory(categoryRepo.findById(productEntity.getCategory().getId())
                 .orElseThrow(() -> new UnSuccessException("Can not find Category By Id")));
         return super.create(productEntity);
@@ -44,7 +49,7 @@ public class ProductService extends BaseServiceImpl<ProductEntity> implements IP
 
     @Override
     public ProductEntity update(String id, ProductEntity productEntity) {
-        productEntity.setUpdateTime(new Date());
+        productEntity.setUpdateTime(ZonedDateTime.now());
         if (productEntity.getCategory() != null){
             productEntity.setCategory(categoryRepo.findById(productEntity.getCategory().getId())
                     .orElseThrow(() -> new UnSuccessException("Can not find Category By Id")));

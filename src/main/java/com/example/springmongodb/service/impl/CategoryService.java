@@ -24,6 +24,11 @@ public class CategoryService extends BaseServiceImpl<CategoryEntity> implements 
     }
 
     @Override
+    protected Class<CategoryEntity> getEntityClass() {
+        return CategoryEntity.class;
+    }
+
+    @Override
     public ResponseObject<String> createWithoutEntity(JSONObject request) {
         ResponseObject<String> response  = new ResponseObject<>(true, ResponseStatus.DO_SERVICE_SUCCESSFUL);
         JSONObject result = mongoTemplate.insert(request, "TestCollection");

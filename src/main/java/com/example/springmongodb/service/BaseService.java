@@ -22,7 +22,7 @@ public interface BaseService<T>{
 
     void delete(String id);
 
-    Page<T> search(Class<T> clazz, SearchRequest req) throws UnsupportedEncodingException;
+    Page<T> search(SearchRequest req) throws UnsupportedEncodingException;
 
     List<T> getByIds(List<String> ids);
 }

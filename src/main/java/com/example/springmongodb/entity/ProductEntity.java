@@ -1,13 +1,12 @@
 package com.example.springmongodb.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -47,11 +46,11 @@ public class ProductEntity extends BaseEntity{
 
     @Field("createTime")
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    private Date createTime;
+    private ZonedDateTime createTime;
 
     @Field("updateTime")
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    private Date updateTime;
+    private ZonedDateTime updateTime;
 
     private CategoryEntity category;
 }

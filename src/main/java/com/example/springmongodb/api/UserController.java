@@ -16,11 +16,5 @@ public class UserController extends BaseController<UserEntity> {
     protected BaseService<UserEntity> getBaseService() {
         return userService;
     }
-
-    @Override
-    protected Class<UserEntity> getEntityClass() {
-        return UserEntity.class;
-    }
-
     
 }

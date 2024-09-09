@@ -19,4 +19,9 @@ public class RoleService extends BaseServiceImpl<RoleEntity> implements IRoleSer
     protected BaseRepo<RoleEntity> getBaseRepo() {
         return roleRepo;
     }
+
+    @Override
+    protected Class<RoleEntity> getEntityClass() {
+        return RoleEntity.class;
+    }
 }

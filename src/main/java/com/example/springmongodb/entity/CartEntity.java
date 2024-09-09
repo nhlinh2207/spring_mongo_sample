@@ -7,7 +7,7 @@ import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -43,15 +43,15 @@ public class CartEntity extends BaseEntity{
 
     @Field("paymentTime")
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    private Date paymentTime;
+    private ZonedDateTime paymentTime;
 
     @Field("orderTime")
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    private Date orderTime;
+    private ZonedDateTime orderTime;
 
     @Field("deliveryTime")
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    private Date deliveryTime;
+    private ZonedDateTime deliveryTime;
 
     private UserEntity user;
 }

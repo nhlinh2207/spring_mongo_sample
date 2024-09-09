@@ -22,11 +22,6 @@ public class ProductController extends BaseController<ProductEntity>{
         return productService;
     }
 
-    @Override
-    protected Class<ProductEntity> getEntityClass() {
-        return ProductEntity.class;
-    }
-
     @PostMapping(path = "/findAll")
     public ResponseEntity<?> testFindAll(@RequestBody JSONObject request){
         return ResponseEntity.ok(productService.findAll(request));

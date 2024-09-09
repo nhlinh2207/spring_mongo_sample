@@ -19,4 +19,9 @@ public class UserService extends BaseServiceImpl<UserEntity> implements IUserSer
     protected BaseRepo<UserEntity> getBaseRepo() {
         return userRepo;
     }
+
+    @Override
+    protected Class<UserEntity> getEntityClass() {
+        return UserEntity.class;
+    }
 }
